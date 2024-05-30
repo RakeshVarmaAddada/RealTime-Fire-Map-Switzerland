@@ -1,0 +1,19 @@
+library(dplyr)
+library(lubridate)
+
+# Convert acq_date to Date type
+all_fire_data$acq_date <- as.Date(all_fire_data$acq_date, format = "%Y-%m-%d")
+
+# Convert acq_time to HH:MM format and then to hms type
+all_fire_data <- all_fire_data %>%
+  mutate(acq_time = sprintf("%04d", as.numeric(acq_time)),  # Ensure 4-digit format
+         acq_time = paste0(substr(acq_time, 1, 2), ":", substr(acq_time, 3, 4)),  # Convert to HH:MM format
+         acq_time = parse_hms(acq_time))  # Convert to hms using lubridate
+
+# Summary statistics (example)
+summary_stats <- all_fire_data %>%
+  group_by(acq_date) %>%
+  summarize(total_fires = n(), avg_brightness = mean(bright_ti4, na.rm = TRUE))
+
+# Print the summary statistics
+print(summary_stats)
